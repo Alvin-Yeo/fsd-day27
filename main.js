@@ -7,6 +7,7 @@ const multer = require('multer');
 const AWS = require('aws-sdk');
 
 // environment configuration
+require('dotenv').config();
 const PORT = parseInt(process.argv[2]) || parseInt(process.env.PORT) || 3000;
 
 // constants
@@ -60,14 +61,12 @@ const putObject = (file, buff, s3) => {
 
 // S3 configuration
 
-// Priority: Shared credentials file > environment variables
-
-// Please set the two following variables in the environment, if you are not using a shared credentials file.
+// Please set the two following variables in the environment
 // AWS_ACCESS_KEY_ID=
 // AWS_SECRET_ACCESS_KEY=
 // For more info, please refer to "https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/loading-node-credentials-environment.html"
 
-AWS.config.credentials = new AWS.SharedIniFileCredentials({ profile: 'fsd-2020' });
+// AWS.config.credentials = new AWS.SharedIniFileCredentials({ profile: 'fsd-2020' });
 const s3 = new AWS.S3({
     endpoint: new AWS.Endpoint('sfo2.digitaloceanspaces.com')
 })
@@ -182,10 +181,11 @@ const startApp = (app, mongoClient) => {
     
     // checking S3 Access Key in shared credential files or environment variables
     const p0 = new Promise((resolve, reject) => {
-        if(!!AWS.config.credentials['accessKeyId'] || (!!process.env.AWS_ACCESS_KEY_ID && !!process.env.AWS_SECRET_ACCESS_KEY))
+        // if(!!AWS.config.credentials['accessKeyId'] || (!!process.env.AWS_ACCESS_KEY_ID && !!process.env.AWS_SECRET_ACCESS_KEY))
+        if(!!process.env.AWS_ACCESS_KEY_ID && !!process.env.AWS_SECRET_ACCESS_KEY)
             resolve();
         else
-            reject('Unable to find S3 Access Key in shared credential files or environment variables.'); 
+            reject('S3 Access Key not found in environment variables.'); 
     });
 
     // checking mongodb connection
